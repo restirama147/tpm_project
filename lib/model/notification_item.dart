@@ -18,7 +18,5 @@ class NotificationItem extends HiveObject {
     required this.timestamp,
     required this.paymentMethod, 
   });
-
-  get user => null;
 }
 

@@ -255,9 +255,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 : '€${total.toStringAsFixed(2)}'}';
 
                         // Simpan notifikasi ke Hive
-                        final box = Hive.box<NotificationItem>(
-                          'notification_box',
-                        );
+                        final box = Hive.box<NotificationItem>('notification_box');
                         await box.add(
                           NotificationItem(
                             message: message,

@@ -15,7 +15,7 @@ Future<void> main() async {
   await Hive.openBox('users');
   await Hive.openBox<CartItem>('cart_box'); 
 
-  await Hive.openBox<CartItem>('cart_box');
+  Hive.registerAdapter(NotificationItemAdapter());
   await Hive.openBox<NotificationItem>('notification_box');
 
   runApp(const MyApp());
