@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:project_tpm/model/cart_item.dart';
 import 'package:project_tpm/model/notification_item.dart';
+import 'package:project_tpm/pages/notification_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -103,9 +104,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final cartItems = widget.selectedItems;
 
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 166, 192, 235),
       appBar: AppBar(
-        title: const Text('Checkout'),
-        backgroundColor: Colors.pinkAccent,
+        title: const Text('Checkout', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 14, 61, 127),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: cartItems.isEmpty
           ? const Center(child: Text('No items selected.'))
@@ -119,7 +123,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.pink,
+                      color: Color.fromARGB(255, 14, 61, 127),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -163,6 +167,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   DropdownButton<String>(
+                    dropdownColor: Color.fromARGB(255, 216, 229, 247),
                     value: selectedPayment,
                     items: paymentMethods
                         .map(
@@ -236,7 +241,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     height: 48,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
+                        backgroundColor: Color.fromARGB(255, 14, 61, 127),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -255,7 +260,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 : '€${total.toStringAsFixed(2)}'}';
 
                         // Simpan notifikasi ke Hive
-                        final box = Hive.box<NotificationItem>('notification_box');
+                        final box = Hive.box<NotificationItem>(
+                          'notification_box',
+                        );
                         await box.add(
                           NotificationItem(
                             message: message,
@@ -264,31 +271,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                         );
 
-                        // Tampilkan dialog sukses, lalu kembali ke halaman sebelumnya dengan hasil true
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text("Order Successful"),
-                            content: Text(
-                              "Thank you for your purchase!\n"
-                              "Delivery to: $location\n"
-                              "Payment: $selectedPayment",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context); // tutup dialog
-                                  Navigator.pop(
-                                    context,
-                                    true,
-                                  ); // kembali ke CartPage dengan hasil `true`
-                                },
-                                child: const Text("OK"),
-                              ),
-                            ],
+                        // Navigasi langsung ke NotificationPage
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationPage(),
                           ),
+                          (route) => false, // hapus semua halaman sebelumnya
                         );
                       },
+
                       child: const Text(
                         'Checkout Now',
                         style: TextStyle(

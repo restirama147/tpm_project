@@ -114,15 +114,21 @@ class _HomePageState extends State<HomePage> {
     return MaterialApp(
       theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 166, 192, 235),
         appBar: AppBar(
-          title: Text("Hello, ${widget.username}"),
+          title: Text(
+            "Hello, ${widget.username}",
+            style: TextStyle(color: Colors.white),
+          ),
           centerTitle: true,
+          backgroundColor: const Color.fromARGB(255, 14, 61, 127),
           actions: [
             Stack(
               alignment: Alignment.topRight,
               children: [
                 IconButton(
                   icon: const Icon(Icons.shopping_cart),
+                  color: Colors.white,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -151,14 +157,24 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(25,25,25,0),
           child: _selectedIndex == 0
               ? Column(
                   children: [
                     TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Search',
+                      decoration: InputDecoration(
+                        hintText: 'Search...',
                         prefixIcon: Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -170,6 +186,7 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         DropdownButton<String>(
+                          dropdownColor: Color.fromARGB(255, 216, 229, 247),
                           value: _sortBy,
                           items: const [
                             DropdownMenuItem(
@@ -188,6 +205,7 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                         DropdownButton<String>(
+                          dropdownColor: Color.fromARGB(255, 216, 229, 247),
                           value: _selectedCategory,
                           items: _categories
                               .map(
@@ -260,8 +278,9 @@ class _HomePageState extends State<HomePage> {
               : const ProfilePage(),
         ),
         bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.pink,
+          selectedItemColor: Color.fromARGB(255, 14, 61, 127),
           onTap: _onItemTapped,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -284,6 +303,7 @@ class _HomePageState extends State<HomePage> {
         final isInCart = cartItems.contains(item.id);
 
         return Card(
+          color: Colors.white,
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
@@ -300,19 +320,29 @@ class _HomePageState extends State<HomePage> {
               item.title ?? 'No Title',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Category: ${item.category ?? '-'}"),
-                Text("Price: \$${item.price?.toStringAsFixed(2) ?? '-'}"),
-                Text("Rating: ${item.rating?.rate ?? 0}"),
+                Text("${item.category}"),
+                Text(
+                  "${item.price?.toStringAsFixed(2)}",
+                  style: TextStyle(color: Colors.green),
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.amber, size: 16),
+                    SizedBox(width: 4),
+                    Text("${item.rating?.rate}"),
+                  ],
+                ),
               ],
             ),
             trailing: IconButton(
               icon: Icon(
                 isInCart ? Icons.shopping_cart : Icons.add_shopping_cart,
-                color: isInCart ? Colors.pink : null,
+                color: isInCart ? Color.fromARGB(255, 14, 61, 127) : null,
               ),
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();

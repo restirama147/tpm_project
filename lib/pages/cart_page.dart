@@ -72,9 +72,12 @@ class _CartPageState extends State<CartPage> {
         .toList();
 
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 166, 192, 235),
       appBar: AppBar(
-        title: const Text('Your Cart'),
-        backgroundColor: Colors.pinkAccent,
+        title: const Text('Your Cart', style: TextStyle(color: Colors.white),),
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 14, 61, 127),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: userCartItems.isEmpty
           ? _buildEmptyCart()
@@ -96,7 +99,7 @@ class _CartPageState extends State<CartPage> {
                         ),
                         elevation: 3,
                         margin: const EdgeInsets.symmetric(vertical: 8),
-                        shadowColor: Colors.pinkAccent.withOpacity(0.3),
+                        shadowColor: Color.fromARGB(255, 14, 61, 127).withOpacity(0.3),
                         child: ListTile(
                           contentPadding: const EdgeInsets.all(12),
                           leading: Row(
@@ -133,7 +136,7 @@ class _CartPageState extends State<CartPage> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.pinkAccent,
+                              color: Colors.black,
                             ),
                           ),
                           subtitle: Text(
@@ -200,12 +203,12 @@ class _CartPageState extends State<CartPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: selectedKeys.isEmpty
                             ? Colors.grey
-                            : const Color.fromARGB(221, 246, 74, 148),
+                            : Color.fromARGB(255, 14, 61, 127),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 6,
-                        shadowColor: Colors.pinkAccent.shade200,
+                        shadowColor: Color.fromARGB(255, 14, 61, 127),
                       ),
                       child: const Text(
                         'Checkout',
@@ -234,7 +237,7 @@ class _CartPageState extends State<CartPage> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: Colors.pinkAccent,
+              color: Colors.black,
             ),
           ),
           DropdownButton<String>(
@@ -251,9 +254,9 @@ class _CartPageState extends State<CartPage> {
                 });
               }
             },
-            dropdownColor: Colors.pink.shade50,
+            dropdownColor: Color.fromARGB(255, 216, 229, 247),
             style: TextStyle(
-              color: Colors.pink.shade900,
+              color: Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -270,7 +273,7 @@ class _CartPageState extends State<CartPage> {
           Icon(
             Icons.shopping_cart_outlined,
             size: 80,
-            color: Colors.pinkAccent.withOpacity(0.7),
+            color: Color.fromARGB(255, 14, 61, 127).withOpacity(0.7),
           ),
           const SizedBox(height: 20),
           const Text(

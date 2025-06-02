@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (hasError) {
-      setState(() {}); // update UI to show errors
+      setState(() {}); 
       return;
     }
 
@@ -98,13 +98,13 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color pinkColor = const Color.fromARGB(221, 246, 74, 148);
+    final Color blueBg = const Color.fromARGB(255, 166, 192, 235);
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [pinkColor.withOpacity(0.9), pinkColor],
+            colors: [blueBg.withOpacity(0.9), blueBg],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -112,6 +112,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: SingleChildScrollView(
             child: Card(
+              color: Colors.white,
               margin: const EdgeInsets.symmetric(horizontal: 24),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -127,19 +128,17 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.lock_outline, size: 60, color: pinkColor),
-                      const SizedBox(height: 12),
                       Text(
                         'Welcome!',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: pinkColor,
+                          color: blueBg,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Login to access Makeup Store',
+                        'Login to access',
                         style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 30),
@@ -167,8 +166,8 @@ class _LoginPageState extends State<LoginPage> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                             ),
                             onPressed: () {
                               setState(() {
@@ -203,7 +202,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: ElevatedButton(
                           onPressed: () => _login(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: pinkColor,
+                            backgroundColor: blueBg,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -236,9 +235,8 @@ class _LoginPageState extends State<LoginPage> {
                             child: Text(
                               'Register',
                               style: TextStyle(
-                                color: pinkColor,
+                                color: blueBg,
                                 fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),

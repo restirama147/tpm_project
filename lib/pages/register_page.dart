@@ -57,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
       valid = false;
     }
 
-    setState(() {}); // refresh UI to show errors
+    setState(() {}); 
 
     if (!valid) return;
 
@@ -69,21 +69,17 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // Simpan password yang sudah di-hash ke Hive dan SharedPreferences
     final hashedPassword = hashPassword(password);
     await box.put(username, hashedPassword);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('password_$username', hashedPassword);
 
-    // Tampilkan pesan berhasil
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Registration successful!")),
     );
 
-    // Beri delay agar SnackBar terlihat dulu, baru pindah halaman
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // Navigasi ke halaman Login (replace halaman sekarang)
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -92,13 +88,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color pinkColor = const Color.fromARGB(221, 246, 74, 148);
+    final Color blueBg = const Color.fromARGB(255, 166, 192, 235);
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [pinkColor.withOpacity(0.9), pinkColor],
+            colors: [blueBg.withOpacity(0.9), blueBg],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -106,6 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Center(
           child: SingleChildScrollView(
             child: Card(
+              color: Colors.white,
               margin: const EdgeInsets.symmetric(horizontal: 24),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -119,19 +116,19 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.person_add_alt_1, size: 60, color: pinkColor),
-                    const SizedBox(height: 12),
+                    // Icon(Icons.person_add_alt_1, size: 60, color: blueBg),
+                    // const SizedBox(height: 12),
                     Text(
                       'Create New Account',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: pinkColor,
+                        color: blueBg,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Register your account to access Makeup Store',
+                      'Register your account',
                       style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 30),
@@ -160,8 +157,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
                           onPressed: () {
                             setState(() {
@@ -195,7 +192,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: ElevatedButton(
                         onPressed: _register,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: pinkColor,
+                          backgroundColor: blueBg,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -227,9 +224,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Text(
                             'Login',
                             style: TextStyle(
-                              color: pinkColor,
+                              color: blueBg,
                               fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
                             ),
                           ),
                         ),

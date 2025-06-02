@@ -19,6 +19,7 @@ class ProfilePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text("Konfirmasi Logout"),
         content: const Text("Apakah Anda yakin ingin keluar?"),
         actions: [
@@ -37,7 +38,7 @@ class ProfilePage extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text("Logout"),
+            child: const Text("Logout", style: TextStyle(color: Colors.white),),
           ),
         ],
       ),
@@ -58,17 +59,18 @@ class ProfilePage extends StatelessWidget {
           MaterialPageRoute(builder: (_) => const NotificationPage()),
         );
         break;
-      case 2:
-        // Sudah di ProfilePage, tidak perlu apa-apa
-        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 166, 192, 235),
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 14, 61, 127),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -79,71 +81,85 @@ class ProfilePage extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: AssetImage('assets/profile_picture.jpg'),
-              ),
+            CircleAvatar(
+              radius: 90,
+              backgroundImage: const AssetImage('assets/profile_picture.jpg'),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Resti',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              '123220147',
+              style: TextStyle(fontSize: 18, color: Colors.black54),
             ),
             const SizedBox(height: 24),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Nama: Resti',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'NIM: 123220147',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 24),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.link, color: Colors.pinkAccent),
-              title: const Text('Instagram: @restirama_'),
+
+            _buildInfoCard(
+              icon: Icons.link,
+              label: 'Instagram: @restirama_',
               onTap: () => _launchURL('http://instagram.com/restirama_'),
             ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.code, color: Colors.pinkAccent),
-              title: const Text('GitHub: resti147'),
-              onTap: () => _launchURL('https://github.com/resti147'),
-            ),
-            const SizedBox(height: 32),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Kesan & Pesan:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
             const SizedBox(height: 12),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Mata kuliah ini menarik, adrenalin saya meningkat, gacor, lumayan agak gila!',
-                style: TextStyle(fontSize: 16),
+            _buildInfoCard(
+              icon: Icons.code,
+              label: 'GitHub: restirama147',
+              onTap: () => _launchURL('https://github.com/restirama147'),
+            ),
+            const SizedBox(height: 24),
+
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 230, 239, 250),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Kesan & Pesan:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Mata kuliah ini menarik, adrenalin saya meningkat, gacor, lumayan agak gila!',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2, // Posisi Profile
-        selectedItemColor: Colors.pink,
+        currentIndex: 2,
+        selectedItemColor: const Color.fromARGB(255, 14, 61, 127),
         onTap: (index) => _onItemTapped(context, index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({required IconData icon, required String label, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        color: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: Icon(icon, color: const Color.fromARGB(255, 14, 61, 127)),
+          title: Text(label),
+          trailing: const Icon(Icons.open_in_new),
+        ),
       ),
     );
   }

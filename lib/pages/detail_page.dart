@@ -27,22 +27,46 @@ class _DetailPageState extends State<DetailPage> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text("Detail Product")),
+            backgroundColor: const Color.fromARGB(255, 166, 192, 235),
+            appBar: AppBar(
+              title: const Text(
+                'Checkout',
+                style: TextStyle(color: Colors.white),
+              ),
+              centerTitle: true,
+              backgroundColor: Color.fromARGB(255, 14, 61, 127),
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
             body: Center(child: Text("Error: ${snapshot.error}")),
           );
         } else if (snapshot.hasData) {
           final product = snapshot.data!;
 
           return Scaffold(
+            backgroundColor: const Color.fromARGB(255, 166, 192, 235),
             appBar: AppBar(
-              title: const Text("Detail Product"),
+              title: const Text(
+                'Checkout',
+                style: TextStyle(color: Colors.white),
+              ),
               centerTitle: true,
+              backgroundColor: Color.fromARGB(255, 14, 61, 127),
+              iconTheme: const IconThemeData(color: Colors.white),
             ),
             body: _buildDetail(product),
           );
         } else {
           return Scaffold(
-            appBar: AppBar(title: const Text("Detail Product")),
+            backgroundColor: const Color.fromARGB(255, 166, 192, 235),
+            appBar: AppBar(
+              title: const Text(
+                'Checkout',
+                style: TextStyle(color: Colors.white),
+              ),
+              centerTitle: true,
+              backgroundColor: Color.fromARGB(255, 14, 61, 127),
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -51,14 +75,14 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget _buildDetail(ModelApp product) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -73,7 +97,9 @@ class _DetailPageState extends State<DetailPage> {
                 return Container(
                   height: 250,
                   color: Colors.grey[300],
-                  child: const Center(child: Icon(Icons.broken_image, size: 60)),
+                  child: const Center(
+                    child: Icon(Icons.broken_image, size: 60),
+                  ),
                 );
               },
             ),
@@ -85,7 +111,10 @@ class _DetailPageState extends State<DetailPage> {
           ),
           const SizedBox(height: 12),
           _buildDetailRow("Category", product.category ?? '-'),
-          _buildDetailRow("Price", "\$${product.price?.toStringAsFixed(2) ?? '-'}"),
+          _buildDetailRow(
+            "Price",
+            "\$${product.price?.toStringAsFixed(2) ?? '-'}",
+          ),
           _buildDetailRow("Rating", "${product.rating?.rate ?? 0}"),
           const SizedBox(height: 12),
           const Text(
@@ -102,7 +131,10 @@ class _DetailPageState extends State<DetailPage> {
                 icon: const Icon(Icons.link, color: Colors.white),
                 label: const Text(
                   "Open Image in Browser",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -132,10 +164,7 @@ class _DetailPageState extends State<DetailPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "$label: ",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text("$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
           Expanded(child: Text(value)),
         ],
       ),
