@@ -272,12 +272,12 @@ class _CartPageState extends State<CartPage> {
         children: [
           Icon(
             Icons.shopping_cart_outlined,
-            size: 80,
+            size: 60,
             color: Color.fromARGB(255, 14, 61, 127).withOpacity(0.7),
           ),
           const SizedBox(height: 20),
           const Text(
-            'Oops, your cart is empty',
+            'Your cart is empty!!',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -286,7 +286,7 @@ class _CartPageState extends State<CartPage> {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Ready to fill it with some favorites?',
+            'add items to cart',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 30),
@@ -300,7 +300,7 @@ class _CartPageState extends State<CartPage> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(221, 246, 74, 148),
+              backgroundColor: Color.fromARGB(255, 14, 61, 127),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

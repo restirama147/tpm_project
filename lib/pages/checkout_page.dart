@@ -7,6 +7,7 @@ import 'package:project_tpm/model/cart_item.dart';
 import 'package:project_tpm/model/notification_item.dart';
 import 'package:project_tpm/pages/notification_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CheckoutPage extends StatefulWidget {
   final String selectedCurrency;
@@ -42,12 +43,43 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   LatLng? deliveryLatLng;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   cartBox = Hive.box<CartItem>('cart_box');
+  //   _loadCurrentUser();
+  //   _determinePosition();
+  // }
+
+  Future<void> _requestLocationPermission(BuildContext context) async {
+    var status = await Permission.location.status;
+
+    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+      status = await Permission.location.request();
+    }
+
+    if (status.isGranted) {
+      _determinePosition(); // hanya panggil jika diizinkan
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Izin lokasi dibutuhkan untuk checkout.'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     cartBox = Hive.box<CartItem>('cart_box');
     _loadCurrentUser();
-    _determinePosition();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestLocationPermission(context);
+    });
   }
 
   Future<void> _loadCurrentUser() async {
@@ -271,6 +303,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                         );
 
+                        for (var item in cartItems) {
+                          final keyToRemove = cartBox.keys.firstWhere(
+                            (key) => cartBox.get(key)?.name == item.name,
+                            orElse: () => null,
+                          );
+                          if (keyToRemove != null) {
+                            cartBox.delete(keyToRemove);
+                          }
+                        }
                         // Navigasi langsung ke NotificationPage
                         Navigator.pushAndRemoveUntil(
                           context,
@@ -280,7 +321,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           (route) => false, // hapus semua halaman sebelumnya
                         );
                       },
-
+                    
                       child: const Text(
                         'Checkout Now',
                         style: TextStyle(

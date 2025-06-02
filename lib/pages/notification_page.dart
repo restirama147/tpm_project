@@ -21,7 +21,7 @@ class _NotificationPageState extends State<NotificationPage> {
       case 'WIT':
         return const Duration(hours: 2);
       case 'London':
-        return const Duration(hours: -6); // WIB - 7 (WIB UTC+7 -> London UTC+1)
+        return const Duration(hours: -6);
       case 'WIB':
       default:
         return Duration.zero;
@@ -71,7 +71,10 @@ class _NotificationPageState extends State<NotificationPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 166, 192, 235),
       appBar: AppBar(
-        title: const Text('Notification', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Notification',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color.fromARGB(255, 14, 61, 127),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -93,7 +96,10 @@ class _NotificationPageState extends State<NotificationPage> {
                       onPressed: () => Navigator.pop(context),
                     ),
                     TextButton(
-                      child: const Text('Hapus', style: TextStyle(color: Colors.red),),
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: Colors.red),
+                      ),
                       onPressed: () {
                         notifBox.clear();
                         Navigator.pop(context);
@@ -103,7 +109,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 ),
               );
             },
-          )
+          ),
         ],
       ),
       body: Column(
@@ -137,7 +143,9 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
           Expanded(
             child: ValueListenableBuilder(
-              valueListenable: Hive.box<NotificationItem>('notification_box').listenable(),
+              valueListenable: Hive.box<NotificationItem>(
+                'notification_box',
+              ).listenable(),
               builder: (context, Box<NotificationItem> notifBox, _) {
                 final notifs = notifBox.values.toList().reversed.toList();
 
@@ -150,7 +158,10 @@ class _NotificationPageState extends State<NotificationPage> {
                   itemBuilder: (context, index) {
                     final notif = notifs[index];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 6.0,
+                      ),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
@@ -174,7 +185,11 @@ class _NotificationPageState extends State<NotificationPage> {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(right: 12),
-                              child: Icon(Icons.check_circle, color: Colors.green, size: 28),
+                              child: Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 28,
+                              ),
                             ),
                             Expanded(
                               child: Column(
@@ -182,17 +197,25 @@ class _NotificationPageState extends State<NotificationPage> {
                                 children: [
                                   Text(
                                     notif.message,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
                                     "Metode: ${notif.paymentMethod.isNotEmpty ? notif.paymentMethod : '-'}",
-                                    style: const TextStyle(color: Color.fromARGB(255, 14, 61, 127)),
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 14, 61, 127),
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     _formatTimestamp(notif.timestamp),
-                                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -214,7 +237,10 @@ class _NotificationPageState extends State<NotificationPage> {
         onTap: (index) => _onItemTapped(context, index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notification',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
