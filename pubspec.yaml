@@ -49,6 +49,8 @@ dependencies:
   url_launcher: ^6.1.7
   sensors_plus: ^3.0.0
   permission_handler: ^11.0.1
+  flutter_local_notifications: ^18.0.1
+  
   
 
 dev_dependencies:

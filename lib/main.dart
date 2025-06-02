@@ -4,23 +4,36 @@ import 'package:project_tpm/model/cart_item.dart';
 import 'package:project_tpm/model/notification_item.dart';
 import 'package:project_tpm/pages/home_page.dart';
 import 'package:project_tpm/pages/login_page.dart';
+import 'package:project_tpm/utils/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  // Daftarkan adapter CartItem
+  // Register Hive Adapters
   Hive.registerAdapter(CartItemAdapter());
-
-  // Buka box users dan cart
-  await Hive.openBox('users');
-  await Hive.openBox<CartItem>('cart_box'); 
-
   Hive.registerAdapter(NotificationItemAdapter());
+
+  // Open Hive Boxes
+  await Hive.openBox('users');
+  await Hive.openBox<CartItem>('cart_box');
   await Hive.openBox<NotificationItem>('notification_box');
 
+  // Init local notifications (handled in NotificationService)
+  await NotificationService.init();
+
+  // Request permission for Android 13+
+  await requestNotificationPermission();
+
   runApp(const MyApp());
+}
+
+Future<void> requestNotificationPermission() async {
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -54,14 +67,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> checkLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    final loggedIn =
-        prefs.getBool('is_logged_in') ??
-        false; 
+    final loggedIn = prefs.getBool('is_logged_in') ?? false;
 
     if (loggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomePage(username: '',)),
+        MaterialPageRoute(builder: (_) => const HomePage(username: '')),
       );
     } else {
       Navigator.pushReplacement(
@@ -73,6 +84,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
   }
 }

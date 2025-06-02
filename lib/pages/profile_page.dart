@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_tpm/utils/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:project_tpm/pages/login_page.dart';
@@ -38,7 +39,7 @@ class ProfilePage extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text("Logout", style: TextStyle(color: Colors.white),),
+            child: const Text("Logout", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -109,7 +110,6 @@ class ProfilePage extends StatelessWidget {
               onTap: () => _launchURL('https://github.com/restirama147'),
             ),
             const SizedBox(height: 24),
-
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -141,14 +141,21 @@ class ProfilePage extends StatelessWidget {
         onTap: (index) => _onItemTapped(context, index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notification',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Card(

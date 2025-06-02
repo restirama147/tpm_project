@@ -3,11 +3,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:project_tpm/model/cart_item.dart';
 import 'package:project_tpm/model/notification_item.dart';
 import 'package:project_tpm/pages/notification_page.dart';
+import 'package:project_tpm/utils/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class CheckoutPage extends StatefulWidget {
   final String selectedCurrency;
@@ -27,6 +28,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   late Box<CartItem> cartBox;
   String currentUser = '';
   String selectedPayment = 'Credit Card';
+  LatLng? deliveryLatLng;
 
   final List<String> paymentMethods = [
     'Credit Card',
@@ -41,44 +43,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     'IDR': 17000.0,
   };
 
-  LatLng? deliveryLatLng;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   cartBox = Hive.box<CartItem>('cart_box');
-  //   _loadCurrentUser();
-  //   _determinePosition();
-  // }
-
-  Future<void> _requestLocationPermission(BuildContext context) async {
-    var status = await Permission.location.status;
-
-    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
-      status = await Permission.location.request();
-    }
-
-    if (status.isGranted) {
-      _determinePosition(); // hanya panggil jika diizinkan
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Izin lokasi dibutuhkan untuk checkout.'),
-          ),
-        );
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     cartBox = Hive.box<CartItem>('cart_box');
     _loadCurrentUser();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _requestLocationPermission(context);
+      _requestLocationPermission();
     });
   }
 
@@ -89,16 +60,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
     });
   }
 
+  Future<void> _requestLocationPermission() async {
+    var status = await Permission.location.status;
+    if (status.isDenied || status.isRestricted || status.isPermanentlyDenied) {
+      status = await Permission.location.request();
+    }
+    if (status.isGranted) {
+      _determinePosition();
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Izin lokasi dibutuhkan untuk checkout.')),
+        );
+      }
+    }
+  }
+
   Future<void> _determinePosition() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    if (!await Geolocator.isLocationServiceEnabled()) return;
 
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) return;
     }
-
     if (permission == LocationPermission.deniedForever) return;
 
     final position = await Geolocator.getCurrentPosition();
@@ -108,23 +93,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   String getConvertedPrice(String priceStr) {
-    double basePrice = double.tryParse(priceStr) ?? 0.0;
-    double converted = basePrice * conversionRates[widget.selectedCurrency]!;
-    String symbol = widget.selectedCurrency == 'IDR'
+    final basePrice = double.tryParse(priceStr) ?? 0.0;
+    final converted = basePrice * (conversionRates[widget.selectedCurrency] ?? 1.0);
+    final symbol = widget.selectedCurrency == 'IDR'
         ? 'Rp'
         : widget.selectedCurrency == 'USD'
-        ? '\$'
-        : '€';
+            ? '\$'
+            : '€';
     return '$symbol${converted.toStringAsFixed(widget.selectedCurrency == 'IDR' ? 0 : 2)}';
   }
 
   double calculateTotal(List<CartItem> items) {
-    double total = 0.0;
-    for (var item in items) {
-      double price = double.tryParse(item.price) ?? 0.0;
-      total += price * item.quantity;
-    }
-    return total * conversionRates[widget.selectedCurrency]!;
+    return items.fold(
+      0.0,
+      (sum, item) {
+        final price = double.tryParse(item.price) ?? 0.0;
+        return sum + (price * item.quantity);
+      },
+    ) * (conversionRates[widget.selectedCurrency] ?? 1.0);
   }
 
   @override
@@ -140,7 +126,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       appBar: AppBar(
         title: const Text('Checkout', style: TextStyle(color: Colors.white)),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 14, 61, 127),
+        backgroundColor: const Color.fromARGB(255, 14, 61, 127),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: cartItems.isEmpty
@@ -150,115 +136,56 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Order Summary',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 14, 61, 127),
-                    ),
-                  ),
+                  const Text('Order Summary', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 14, 61, 127))),
                   const SizedBox(height: 12),
                   Expanded(
                     child: ListView.builder(
                       itemCount: cartItems.length,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (_, index) {
                         final item = cartItems[index];
                         return ListTile(
-                          leading: Image.network(
-                            item.image,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.broken_image),
-                          ),
+                          leading: Image.network(item.image, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image)),
                           title: Text(item.name),
-                          subtitle: Text(
-                            '${getConvertedPrice(item.price)} x ${item.quantity}',
-                          ),
+                          subtitle: Text('${getConvertedPrice(item.price)} x ${item.quantity}'),
                         );
                       },
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Total: ${widget.selectedCurrency == 'IDR'
-                        ? 'Rp'
-                        : widget.selectedCurrency == 'USD'
-                        ? '\$'
-                        : '€'}${calculateTotal(cartItems).toStringAsFixed(widget.selectedCurrency == 'IDR' ? 0 : 2)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    'Total: ${getConvertedPrice(calculateTotal(cartItems).toString())}',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Payment Method:',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
+                  const Text('Payment Method:', style: TextStyle(fontWeight: FontWeight.w600)),
                   DropdownButton<String>(
-                    dropdownColor: Color.fromARGB(255, 216, 229, 247),
+                    dropdownColor: const Color.fromARGB(255, 216, 229, 247),
                     value: selectedPayment,
-                    items: paymentMethods
-                        .map(
-                          (method) => DropdownMenuItem(
-                            value: method,
-                            child: Text(method),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedPayment = value;
-                        });
-                      }
-                    },
+                    items: paymentMethods.map((method) => DropdownMenuItem(value: method, child: Text(method))).toList(),
+                    onChanged: (value) => setState(() => selectedPayment = value ?? selectedPayment),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Choose Delivery Location:',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
+                  const Text('Choose Delivery Location:', style: TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   Container(
                     height: 200,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
                     child: FlutterMap(
                       options: MapOptions(
                         center: deliveryLatLng,
                         zoom: 13.0,
-                        onTap: (tapPos, point) {
-                          setState(() {
-                            deliveryLatLng = point;
-                          });
-                        },
+                        onTap: (_, point) => setState(() => deliveryLatLng = point),
                       ),
                       children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.example.app',
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: deliveryLatLng!,
-                              width: 60,
-                              height: 60,
-                              builder: (_) => const Icon(
-                                Icons.location_pin,
-                                color: Colors.red,
-                                size: 40,
-                              ),
-                            ),
-                          ],
-                        ),
+                        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.example.app'),
+                        MarkerLayer(markers: [
+                          Marker(
+                            point: deliveryLatLng!,
+                            width: 60,
+                            height: 60,
+                            builder: (_) => const Icon(Icons.location_pin, color: Colors.red, size: 40),
+                          ),
+                        ]),
                       ],
                     ),
                   ),
@@ -273,62 +200,46 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     height: 48,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 14, 61, 127),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        backgroundColor: const Color.fromARGB(255, 14, 61, 127),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      // Ganti bagian `onPressed` di tombol Checkout Now seperti ini:
                       onPressed: () async {
                         final total = calculateTotal(cartItems);
-                        final location =
-                            '${deliveryLatLng!.latitude.toStringAsFixed(4)}, ${deliveryLatLng!.longitude.toStringAsFixed(4)}';
+                        final symbol = widget.selectedCurrency == 'IDR'
+                            ? 'Rp'
+                            : widget.selectedCurrency == 'USD'
+                                ? '\$'
+                                : '€';
+                        final message = 'Checkout berhasil senilai $symbol${total.toStringAsFixed(widget.selectedCurrency == 'IDR' ? 0 : 2)}';
 
-                        final message =
-                            'Checkout berhasil senilai ${widget.selectedCurrency == 'IDR'
-                                ? 'Rp${total.toStringAsFixed(0)}'
-                                : widget.selectedCurrency == 'USD'
-                                ? '\$${total.toStringAsFixed(2)}'
-                                : '€${total.toStringAsFixed(2)}'}';
+                        final box = Hive.box<NotificationItem>('notification_box');
+                        await box.add(NotificationItem(
+                          message: message,
+                          timestamp: DateTime.now(),
+                          paymentMethod: selectedPayment,
+                        ));
 
-                        // Simpan notifikasi ke Hive
-                        final box = Hive.box<NotificationItem>(
-                          'notification_box',
-                        );
-                        await box.add(
-                          NotificationItem(
-                            message: message,
-                            timestamp: DateTime.now(),
-                            paymentMethod: selectedPayment,
-                          ),
-                        );
+                        await NotificationService.show('Checkout Berhasil', message);
 
-                        for (var item in cartItems) {
-                          final keyToRemove = cartBox.keys.firstWhere(
-                            (key) => cartBox.get(key)?.name == item.name,
-                            orElse: () => null,
-                          );
-                          if (keyToRemove != null) {
-                            cartBox.delete(keyToRemove);
-                          }
+                        // Hapus item dari Hive cart
+                        final keysToRemove = cartBox.keys.where((key) {
+                          final item = cartBox.get(key);
+                          return cartItems.any((i) => i.name == item?.name);
+                        }).toList();
+
+                        for (var key in keysToRemove) {
+                          await cartBox.delete(key);
                         }
-                        // Navigasi langsung ke NotificationPage
+
+                        if (!context.mounted) return;
+
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const NotificationPage(),
-                          ),
-                          (route) => false, // hapus semua halaman sebelumnya
+                          MaterialPageRoute(builder: (_) => const NotificationPage()),
+                          (route) => false,
                         );
                       },
-                    
-                      child: const Text(
-                        'Checkout Now',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: const Text('Checkout Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

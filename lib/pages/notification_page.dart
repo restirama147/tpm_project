@@ -3,6 +3,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:project_tpm/model/notification_item.dart';
 import 'package:project_tpm/pages/home_page.dart';
 import 'package:project_tpm/pages/profile_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -11,8 +12,26 @@ class NotificationPage extends StatefulWidget {
   State<NotificationPage> createState() => _NotificationPageState();
 }
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 class _NotificationPageState extends State<NotificationPage> {
   String selectedZone = 'WIB';
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  Future<void> _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
 
   Duration _getOffset(String zone) {
     switch (zone) {
@@ -66,6 +85,37 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
+  Future<void> _showLocalNotification(String title, String body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+          'default_channel',
+          'Notifikasi Lokal',
+          channelDescription: 'Channel untuk notifikasi lokal',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker',
+        );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+    );
+  }
+
+  void _deleteNotification(Box<NotificationItem> notifBox, int index) {
+    notifBox.deleteAt(index);
+    _showLocalNotification(
+      'Notifikasi Dihapus',
+      'Satu notifikasi telah dihapus.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +153,10 @@ class _NotificationPageState extends State<NotificationPage> {
                       onPressed: () {
                         notifBox.clear();
                         Navigator.pop(context);
+                        _showLocalNotification(
+                          'Notifikasi Dihapus',
+                          'Semua notifikasi telah dihapus.',
+                        );
                       },
                     ),
                   ],
@@ -157,70 +211,84 @@ class _NotificationPageState extends State<NotificationPage> {
                   itemCount: notifs.length,
                   itemBuilder: (context, index) {
                     final notif = notifs[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 6.0,
+                    final reversedIndex = notifBox.length - 1 - index;
+
+                    return Dismissible(
+                      key: UniqueKey(),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        padding: const EdgeInsets.only(right: 20),
+                        alignment: Alignment.centerRight,
+                        color: Colors.red,
+                        child: const Icon(Icons.delete, color: Colors.white),
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Colors.white, Color(0xFFE6E6FA)],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                      onDismissed: (_) =>
+                          _deleteNotification(notifBox, reversedIndex),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 6.0,
                         ),
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(right: 12),
-                              child: Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 28,
-                              ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Colors.white, Color(0xFFE6E6FA)],
                             ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    notif.message,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    "Metode: ${notif.paymentMethod.isNotEmpty ? notif.paymentMethod : '-'}",
-                                    style: const TextStyle(
-                                      color: Color.fromARGB(255, 14, 61, 127),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _formatTimestamp(notif.timestamp),
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 4),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 12),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 28,
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      notif.message,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      "Metode: ${notif.paymentMethod.isNotEmpty ? notif.paymentMethod : '-'}",
+                                      style: const TextStyle(
+                                        color: Color.fromARGB(255, 14, 61, 127),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _formatTimestamp(notif.timestamp),
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
