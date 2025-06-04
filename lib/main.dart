@@ -4,7 +4,7 @@ import 'package:project_tpm/model/cart_item.dart';
 import 'package:project_tpm/model/notification_item.dart';
 import 'package:project_tpm/pages/home_page.dart';
 import 'package:project_tpm/pages/login_page.dart';
-import 'package:project_tpm/utils/notification_service.dart';
+import 'package:project_tpm/service/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 

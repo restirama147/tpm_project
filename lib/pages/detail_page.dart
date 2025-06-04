@@ -30,7 +30,7 @@ class _DetailPageState extends State<DetailPage> {
             backgroundColor: const Color.fromARGB(255, 166, 192, 235),
             appBar: AppBar(
               title: const Text(
-                'Checkout',
+                'Detail Product',
                 style: TextStyle(color: Colors.white),
               ),
               centerTitle: true,
@@ -46,7 +46,7 @@ class _DetailPageState extends State<DetailPage> {
             backgroundColor: const Color.fromARGB(255, 166, 192, 235),
             appBar: AppBar(
               title: const Text(
-                'Checkout',
+                'Detail Product',
                 style: TextStyle(color: Colors.white),
               ),
               centerTitle: true,
@@ -60,7 +60,7 @@ class _DetailPageState extends State<DetailPage> {
             backgroundColor: const Color.fromARGB(255, 166, 192, 235),
             appBar: AppBar(
               title: const Text(
-                'Checkout',
+                'Detail Product',
                 style: TextStyle(color: Colors.white),
               ),
               centerTitle: true,

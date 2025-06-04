@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:project_tpm/model/cart_item.dart';
 import 'package:project_tpm/model/notification_item.dart';
 import 'package:project_tpm/pages/notification_page.dart';
-import 'package:project_tpm/utils/notification_service.dart';
+import 'package:project_tpm/service/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutPage extends StatefulWidget {

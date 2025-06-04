@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_tpm/utils/notification_service.dart';
+import 'package:project_tpm/service/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:project_tpm/pages/login_page.dart';
